@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Code, Download, RotateCcw, Menu, X, Copy, Check } from 'lucide-react';
+import EJSEditor from './components/EJSEditor';
 
 // Simple EJS-like template engine for browser use
 const renderEJS = (template: string, data: any = {}): string => {
@@ -441,21 +442,18 @@ function App() {
             {/* Editor Content */}
             <div className="flex-1 p-4">
               {activeTab === 'template' ? (
-                <textarea
-                  ref={textareaRef}
+                <EJSEditor
                   value={template}
                   onChange={(e) => setTemplate(e.target.value)}
-                  className="w-full h-full bg-gray-900 text-white p-4 rounded-lg border border-gray-600 resize-none font-mono text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                  language="ejs"
                   placeholder="Enter your EJS template here..."
-                  spellCheck={false}
                 />
               ) : (
-                <textarea
+                <EJSEditor
                   value={data}
                   onChange={(e) => setData(e.target.value)}
-                  className="w-full h-full bg-gray-900 text-white p-4 rounded-lg border border-gray-600 resize-none font-mono text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                  language="json"
                   placeholder="Enter JSON data here..."
-                  spellCheck={false}
                 />
               )}
             </div>
