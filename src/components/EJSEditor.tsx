@@ -108,7 +108,7 @@ const EJSEditor: React.FC<EJSEditorProps> = ({
           { token: 'html.text', foreground: '#D4D4D4' }
         ],
         colors: {
-          'editor.background': '#1E1E1E',
+          'editor.background': '#222222',
           'editor.foreground': '#D4D4D4',
           'editorLineNumber.foreground': '#858585',
           'editor.selectionBackground': '#264F78',
