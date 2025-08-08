@@ -1,90 +1,90 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Play, Code, Download, RotateCcw, Menu, X, Copy, Check } from 'lucide-react';
 import EJSEditor from './components/EJSEditor';
 
 // Simple EJS-like template engine for browser use
 const renderEJS = (template: string, data: any = {}): string => {
-  try {
-    // Handle basic EJS syntax: <% %>, <%= %>, <%- %>
-    let result = template;
-    
-    // Replace <%- %> (unescaped output)
-    result = result.replace(/<%-([\s\S]*?)%>/g, (match, code) => {
-      try {
-        const func = new Function(...Object.keys(data), `return ${code.trim()}`);
-        return func(...Object.values(data));
-      } catch (e) {
-        return `[Error: ${e.message}]`;
-      }
-    });
-    
-    // Replace <%= %> (escaped output)
-    result = result.replace(/<%=([\s\S]*?)%>/g, (match, code) => {
-      try {
-        const func = new Function(...Object.keys(data), `return ${code.trim()}`);
-        const output = func(...Object.values(data));
-        return String(output).replace(/[&<>"']/g, (char) => {
-          const entities: { [key: string]: string } = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;'
-          };
-          return entities[char] || char;
+    try {
+        // Handle basic EJS syntax: <% %>, <%= %>, <%- %>
+        let result = template;
+
+        // Replace <%- %> (unescaped output)
+        result = result.replace(/<%-([\s\S]*?)%>/g, (_match, code) => {
+            try {
+                const func = new Function(...Object.keys(data), `return ${code.trim()}`);
+                return func(...Object.values(data));
+            } catch (e: any) {
+                return `[Error: ${e.message}]`;
+            }
         });
-      } catch (e) {
-        return `[Error: ${e.message}]`;
-      }
-    });
-    
-    // Handle <% %> (code execution)
-    result = result.replace(/<%([\s\S]*?)%>/g, (match, code) => {
-      try {
-        // Simple variable declarations and loops
-        const trimmedCode = code.trim();
-        
-        if (trimmedCode.startsWith('if')) {
-          // Handle simple if statements
-          const condition = trimmedCode.match(/if\s*\((.*?)\)/)?.[1];
-          if (condition) {
-            const func = new Function(...Object.keys(data), `return ${condition}`);
-            return func(...Object.values(data)) ? '' : '<!-- if condition false -->';
-          }
-        }
-        
-        if (trimmedCode.startsWith('for') || trimmedCode.startsWith('while')) {
-          return '<!-- loop detected -->';
-        }
-        
-        return '';
-      } catch (e) {
-        return `[Error: ${e.message}]`;
-      }
-    });
-    
-    return result;
-  } catch (error) {
-    return `<div style="color: red; padding: 20px; background: #ffe6e6; border-radius: 8px;">
+
+        // Replace <%= %> (escaped output)
+        result = result.replace(/<%=([\s\S]*?)%>/g, (_match, code) => {
+            try {
+                const func = new Function(...Object.keys(data), `return ${code.trim()}`);
+                const output = func(...Object.values(data));
+                return String(output).replace(/[&<>"']/g, (char) => {
+                    const entities: { [key: string]: string } = {
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#39;'
+                    };
+                    return entities[char] || char;
+                });
+            } catch (e: any) {
+                return `[Error: ${e.message}]`;
+            }
+        });
+
+        // Handle <% %> (code execution)
+        result = result.replace(/<%([\s\S]*?)%>/g, (_match, code) => {
+            try {
+                // Simple variable declarations and loops
+                const trimmedCode = code.trim();
+
+                if (trimmedCode.startsWith('if')) {
+                    // Handle simple if statements
+                    const condition = trimmedCode.match(/if\s*\((.*?)\)/)?.[1];
+                    if (condition) {
+                        const func = new Function(...Object.keys(data), `return ${condition}`);
+                        return func(...Object.values(data)) ? '' : '<!-- if condition false -->';
+                    }
+                }
+
+                if (trimmedCode.startsWith('for') || trimmedCode.startsWith('while')) {
+                    return '<!-- loop detected -->';
+                }
+
+                return '';
+            } catch (e: any) {
+                return `[Error: ${e.message}]`;
+            }
+        });
+
+        return result;
+    } catch (error: any) {
+        return `<div style="color: red; padding: 20px; background: #ffe6e6; border-radius: 8px;">
       <h3>Template Error:</h3>
       <p>${error.message}</p>
     </div>`;
-  }
+    }
 };
 
 const sampleTemplates = [
-  {
-    name: 'Basic Variables',
-    template: `<div class="container">
+    {
+        name: 'Basic Variables',
+        template: `<div class="container">
   <h1>Welcome, <%= name %>!</h1>
   <p>You have <%= messages %> new messages.</p>
   <p>Today is <%= new Date().toLocaleDateString() %></p>
 </div>`,
-    data: { name: 'John Doe', messages: 5 }
-  },
-  {
-    name: 'User Profile Card',
-    template: `<div class="profile-card">
+        data: { name: 'John Doe', messages: 5 }
+    },
+    {
+        name: 'User Profile Card',
+        template: `<div class="profile-card">
   <div class="avatar">
     <img src="https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=150" alt="Avatar">
   </div>
@@ -150,19 +150,19 @@ const sampleTemplates = [
   text-transform: uppercase;
 }
 </style>`,
-    data: {
-      user: {
-        name: 'Sarah Wilson',
-        title: 'Senior Developer',
-        email: 'sarah.wilson@example.com',
-        posts: 127,
-        followers: 1453
-      }
-    }
-  },
-  {
-    name: 'Product Showcase',
-    template: `<div class="product-showcase">
+        data: {
+            user: {
+                name: 'Sarah Wilson',
+                title: 'Senior Developer',
+                email: 'sarah.wilson@example.com',
+                posts: 127,
+                followers: 1453
+            }
+        }
+    },
+    {
+        name: 'Product Showcase',
+        template: `<div class="product-showcase">
   <div class="product-grid">
     <% products.forEach(function(product) { %>
     <div class="product-card">
@@ -237,245 +237,240 @@ const sampleTemplates = [
   opacity: 0.9;
 }
 </style>`,
-    data: {
-      products: [
-        {
-          name: 'Wireless Headphones',
-          price: 199,
-          image: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400',
-          description: 'Premium noise-canceling wireless headphones with superior sound quality.'
-        },
-        {
-          name: 'Smart Watch',
-          price: 299,
-          image: 'https://images.pexels.com/photos/437037/pexels-photo-437037.jpeg?auto=compress&cs=tinysrgb&w=400',
-          description: 'Advanced fitness tracking and smart notifications on your wrist.'
+        data: {
+            products: [
+                {
+                    name: 'Wireless Headphones',
+                    price: 199,
+                    image: 'https://images.pexels.com/photos/3394650/pexels-photo-3394650.jpeg?auto=compress&cs=tinysrgb&w=400',
+                    description: 'Premium noise-canceling wireless headphones with superior sound quality.'
+                },
+                {
+                    name: 'Smart Watch',
+                    price: 299,
+                    image: 'https://images.pexels.com/photos/437037/pexels-photo-437037.jpeg?auto=compress&cs=tinysrgb&w=400',
+                    description: 'Advanced fitness tracking and smart notifications on your wrist.'
+                }
+            ]
         }
-      ]
     }
-  }
 ];
 
 function App() {
-  const [template, setTemplate] = useState(sampleTemplates[0].template);
-  const [data, setData] = useState(JSON.stringify(sampleTemplates[0].data, null, 2));
-  const [preview, setPreview] = useState('');
-  const [activeTab, setActiveTab] = useState<'template' | 'data'>('template');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [template, setTemplate] = useState(sampleTemplates[0].template);
+    const [data, setData] = useState(JSON.stringify(sampleTemplates[0].data, null, 2));
+    const [preview, setPreview] = useState('');
+    const [activeTab, setActiveTab] = useState<'template' | 'data'>('template');
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [copied, setCopied] = useState(false);
+    // const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => {
-    try {
-      const parsedData = JSON.parse(data);
-      const rendered = renderEJS(template, parsedData);
-      setPreview(rendered);
-    } catch (error) {
-      setPreview(`<div style="color: red; padding: 20px; background: #ffe6e6; border-radius: 8px;">
+    useEffect(() => {
+        try {
+            const parsedData = JSON.parse(data);
+            const rendered = renderEJS(template, parsedData);
+            setPreview(rendered);
+        } catch (error: any) {
+            setPreview(`<div style="color: red; padding: 20px; background: #ffe6e6; border-radius: 8px;">
         <h3>Data Error:</h3>
         <p>Invalid JSON data: ${error.message}</p>
       </div>`);
-    }
-  }, [template, data]);
+        }
+    }, [template, data]);
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedTemplate = localStorage.getItem('ejs-preview-template');
-    const savedData = localStorage.getItem('ejs-preview-data');
-    
-    if (savedTemplate) setTemplate(savedTemplate);
-    if (savedData) setData(savedData);
-  }, []);
+    // Load from localStorage on mount
+    useEffect(() => {
+        const savedTemplate = localStorage.getItem('ejs-preview-template');
+        const savedData = localStorage.getItem('ejs-preview-data');
 
-  // Save to localStorage
-  useEffect(() => {
-    localStorage.setItem('ejs-preview-template', template);
-    localStorage.setItem('ejs-preview-data', data);
-  }, [template, data]);
+        if (savedTemplate) setTemplate(savedTemplate);
+        if (savedData) setData(savedData);
+    }, []);
 
-  const loadSample = (sample: typeof sampleTemplates[0]) => {
-    setTemplate(sample.template);
-    setData(JSON.stringify(sample.data, null, 2));
-    setMobileMenuOpen(false);
-  };
+    // Save to localStorage
+    useEffect(() => {
+        localStorage.setItem('ejs-preview-template', template);
+        localStorage.setItem('ejs-preview-data', data);
+    }, [template, data]);
 
-  const exportHtml = () => {
-    const blob = new Blob([preview], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'template-output.html';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+    const loadSample = (sample: (typeof sampleTemplates)[0]) => {
+        setTemplate(sample.template);
+        setData(JSON.stringify(sample.data, null, 2));
+        setMobileMenuOpen(false);
+    };
 
-  const copyToClipboard = async () => {
-    try {
-      await navigator.clipboard.writeText(preview);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
+    const exportHtml = () => {
+        const blob = new Blob([preview], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'template-output.html';
+        a.click();
+        URL.revokeObjectURL(url);
+    };
 
-  const resetToDefaults = () => {
-    setTemplate(sampleTemplates[0].template);
-    setData(JSON.stringify(sampleTemplates[0].data, null, 2));
-  };
+    const copyToClipboard = async () => {
+        try {
+            await navigator.clipboard.writeText(preview);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy:', err);
+        }
+    };
 
-  return (
-    <div className="min-h-screen bg-gray-900 text-white font-sans">
-      {/* Header */}
-      <header className="bg-gray-800 border-b border-gray-700 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Code className="h-8 w-8 text-blue-400" />
-            <h1 className="text-xl font-bold">EJS Live Preview</h1>
-          </div>
-          
-          <div className="hidden md:flex items-center space-x-4">
-            <button
-              onClick={copyToClipboard}
-              className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors"
-            >
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-              <span>{copied ? 'Copied!' : 'Copy HTML'}</span>
-            </button>
-            <button
-              onClick={exportHtml}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-            >
-              <Download className="h-4 w-4" />
-              <span>Export</span>
-            </button>
-            <button
-              onClick={resetToDefaults}
-              className="flex items-center space-x-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors"
-            >
-              <RotateCcw className="h-4 w-4" />
-              <span>Reset</span>
-            </button>
-          </div>
+    const resetToDefaults = () => {
+        setTemplate(sampleTemplates[0].template);
+        setData(JSON.stringify(sampleTemplates[0].data, null, 2));
+    };
 
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg bg-gray-700 hover:bg-gray-600"
-          >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+    return (
+        <div className="min-h-screen bg-gray-900 text-white font-sans">
+            {/* Header */}
+            <header className="bg-gray-800 border-b border-gray-700 px-6 py-4">
+                <div className="max-w-7xl mx-auto flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                        <Code className="h-8 w-8 text-blue-400" />
+                        <h1 className="text-xl font-bold">EJS Live Preview</h1>
+                    </div>
+
+                    <div className="hidden md:flex items-center space-x-4">
+                        <button
+                            onClick={copyToClipboard}
+                            className="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors">
+                            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                            <span>{copied ? 'Copied!' : 'Copy HTML'}</span>
+                        </button>
+                        <button
+                            onClick={exportHtml}
+                            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                            <Download className="h-4 w-4" />
+                            <span>Export</span>
+                        </button>
+                        <button
+                            onClick={resetToDefaults}
+                            className="flex items-center space-x-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition-colors">
+                            <RotateCcw className="h-4 w-4" />
+                            <span>Reset</span>
+                        </button>
+                    </div>
+
+                    <button
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        className="md:hidden p-2 rounded-lg bg-gray-700 hover:bg-gray-600">
+                        {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                    </button>
+                </div>
+
+                {/* Mobile Menu */}
+                {mobileMenuOpen && (
+                    <div className="md:hidden mt-4 pt-4 border-t border-gray-700">
+                        <div className="space-y-3">
+                            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide">
+                                Sample Templates
+                            </h3>
+                            {sampleTemplates.map((sample, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => loadSample(sample)}
+                                    className="block w-full text-left px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors text-sm">
+                                    {sample.name}
+                                </button>
+                            ))}
+                            <div className="flex space-x-2 pt-2">
+                                <button
+                                    onClick={copyToClipboard}
+                                    className="flex-1 flex items-center justify-center space-x-1 py-2 bg-green-600 rounded-lg text-sm">
+                                    {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                                    <span>{copied ? 'Copied!' : 'Copy'}</span>
+                                </button>
+                                <button
+                                    onClick={exportHtml}
+                                    className="flex-1 flex items-center justify-center space-x-1 py-2 bg-blue-600 rounded-lg text-sm">
+                                    <Download className="h-4 w-4" />
+                                    <span>Export</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </header>
+
+            <div className="flex flex-1 h-screen">
+                {/* Sidebar */}
+                <div className="hidden lg:block w-64 bg-gray-800 border-r border-gray-700 p-4">
+                    <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-4">Sample Templates</h3>
+                    <div className="space-y-2">
+                        {sampleTemplates.map((sample, index) => (
+                            <button
+                                key={index}
+                                onClick={() => loadSample(sample)}
+                                className="block w-full text-left px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors text-sm">
+                                {sample.name}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="flex-1 flex flex-col lg:flex-row">
+                    {/* Editor Section */}
+                    <div className="flex-1 flex flex-col bg-gray-800">
+                        {/* Editor Tabs */}
+                        <div className="flex border-b border-gray-700">
+                            <button
+                                onClick={() => setActiveTab('template')}
+                                className={`px-6 py-3 text-sm font-medium transition-colors ${
+                                    activeTab === 'template'
+                                        ? 'bg-gray-700 text-white border-b-2 border-blue-400'
+                                        : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                                }`}>
+                                Template
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('data')}
+                                className={`px-6 py-3 text-sm font-medium transition-colors ${
+                                    activeTab === 'data'
+                                        ? 'bg-gray-700 text-white border-b-2 border-blue-400'
+                                        : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                                }`}>
+                                Data (JSON)
+                            </button>
+                        </div>
+
+                        {/* Editor Content */}
+                        <div className="flex-1 p-4">
+                            {activeTab === 'template' ? (
+                                <EJSEditor
+                                    value={template}
+                                    onChange={setTemplate}
+                                    language="html"
+                                    placeholder="Enter your EJS template here..."
+                                />
+                            ) : (
+                                <EJSEditor
+                                    value={data}
+                                    onChange={setData}
+                                    language="json"
+                                    placeholder="Enter JSON data here..."
+                                />
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Preview Section */}
+                    <div className="flex-1 flex flex-col bg-white">
+                        <div className="bg-gray-100 px-6 py-3 border-b border-gray-200 flex items-center justify-between">
+                            <h3 className="text-sm font-medium text-gray-700 uppercase tracking-wide">Live Preview</h3>
+                            <Play className="h-4 w-4 text-green-600" />
+                        </div>
+                        <div className="flex-1 overflow-auto">
+                            <div dangerouslySetInnerHTML={{ __html: preview }} className="h-full text-black" />
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-4 pt-4 border-t border-gray-700">
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide">Sample Templates</h3>
-              {sampleTemplates.map((sample, index) => (
-                <button
-                  key={index}
-                  onClick={() => loadSample(sample)}
-                  className="block w-full text-left px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors text-sm"
-                >
-                  {sample.name}
-                </button>
-              ))}
-              <div className="flex space-x-2 pt-2">
-                <button onClick={copyToClipboard} className="flex-1 flex items-center justify-center space-x-1 py-2 bg-green-600 rounded-lg text-sm">
-                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                  <span>{copied ? 'Copied!' : 'Copy'}</span>
-                </button>
-                <button onClick={exportHtml} className="flex-1 flex items-center justify-center space-x-1 py-2 bg-blue-600 rounded-lg text-sm">
-                  <Download className="h-4 w-4" />
-                  <span>Export</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </header>
-
-      <div className="flex flex-1 h-screen">
-        {/* Sidebar */}
-        <div className="hidden lg:block w-64 bg-gray-800 border-r border-gray-700 p-4">
-          <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wide mb-4">Sample Templates</h3>
-          <div className="space-y-2">
-            {sampleTemplates.map((sample, index) => (
-              <button
-                key={index}
-                onClick={() => loadSample(sample)}
-                className="block w-full text-left px-3 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition-colors text-sm"
-              >
-                {sample.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex-1 flex flex-col lg:flex-row">
-          {/* Editor Section */}
-          <div className="flex-1 flex flex-col bg-gray-800">
-            {/* Editor Tabs */}
-            <div className="flex border-b border-gray-700">
-              <button
-                onClick={() => setActiveTab('template')}
-                className={`px-6 py-3 text-sm font-medium transition-colors ${
-                  activeTab === 'template'
-                    ? 'bg-gray-700 text-white border-b-2 border-blue-400'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
-                }`}
-              >
-                Template
-              </button>
-              <button
-                onClick={() => setActiveTab('data')}
-                className={`px-6 py-3 text-sm font-medium transition-colors ${
-                  activeTab === 'data'
-                    ? 'bg-gray-700 text-white border-b-2 border-blue-400'
-                    : 'text-gray-400 hover:text-white hover:bg-gray-700'
-                }`}
-              >
-                Data (JSON)
-              </button>
-            </div>
-
-            {/* Editor Content */}
-            <div className="flex-1 p-4">
-              {activeTab === 'template' ? (
-                <EJSEditor
-                  value={template}
-                  onChange={(e) => setTemplate(e.target.value)}
-                  language="ejs"
-                  placeholder="Enter your EJS template here..."
-                />
-              ) : (
-                <EJSEditor
-                  value={data}
-                  onChange={(e) => setData(e.target.value)}
-                  language="json"
-                  placeholder="Enter JSON data here..."
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Preview Section */}
-          <div className="flex-1 flex flex-col bg-white">
-            <div className="bg-gray-100 px-6 py-3 border-b border-gray-200 flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-700 uppercase tracking-wide">Live Preview</h3>
-              <Play className="h-4 w-4 text-green-600" />
-            </div>
-            <div className="flex-1 overflow-auto">
-              <div
-                dangerouslySetInnerHTML={{ __html: preview }}
-                className="h-full"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default App;
