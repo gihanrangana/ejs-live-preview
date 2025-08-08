@@ -105,24 +105,24 @@ const EJSEditor: React.FC<EJSEditorProps> = ({
         inherit: true,
         rules: [
           { token: 'delimiter.ejs', foreground: '#F59E0B', fontStyle: 'bold' },
-          { token: 'keyword', foreground: '#8B5CF6' },
-          { token: 'string', foreground: '#10B981' },
-          { token: 'number', foreground: '#F59E0B' },
-          { token: 'variable', foreground: '#60A5FA' },
-          { token: 'tag', foreground: '#F87171' },
-          { token: 'attribute.name', foreground: '#FBBF24' },
-          { token: 'attribute.value', foreground: '#10B981' },
-          { token: 'comment', foreground: '#6B7280', fontStyle: 'italic' },
-          { token: 'operator', foreground: '#A78BFA' },
-          { token: 'delimiter.bracket', foreground: '#E5E7EB' },
-          { token: 'text', foreground: '#F3F4F6' }
+          { token: 'keyword', foreground: '#C792EA' },
+          { token: 'string', foreground: '#C3E88D' },
+          { token: 'number', foreground: '#F78C6C' },
+          { token: 'variable', foreground: '#82AAFF' },
+          { token: 'tag', foreground: '#F07178' },
+          { token: 'attribute.name', foreground: '#FFCB6B' },
+          { token: 'attribute.value', foreground: '#C3E88D' },
+          { token: 'comment', foreground: '#546E7A', fontStyle: 'italic' },
+          { token: 'operator', foreground: '#89DDFF' },
+          { token: 'delimiter.bracket', foreground: '#A6ACCD' },
+          { token: 'text', foreground: '#A6ACCD' }
         ],
         colors: {
-          'editor.background': '#111827',
-          'editor.foreground': '#F3F4F6',
-          'editorLineNumber.foreground': '#6B7280',
-          'editor.selectionBackground': '#374151',
-          'editor.lineHighlightBackground': '#1F2937'
+          'editor.background': '#1e1e1e',
+          'editor.foreground': '#A6ACCD',
+          'editorLineNumber.foreground': '#464B5D',
+          'editor.selectionBackground': '#3A3F58',
+          'editor.lineHighlightBackground': '#2C2D30'
         }
       });
 
