@@ -34,67 +34,51 @@ const EJSEditor: React.FC<EJSEditorProps> = ({
             [/%>/, 'delimiter.ejs'],
             
             // HTML tags
-            [/<\/?[a-zA-Z][\w-]*/, 'tag'],
-            [/[<>]/, 'delimiter.html'],
+            [/<\/?[a-zA-Z][\w-]*(?=\s|>|$)/, 'html.tag'],
+            [/<|>/, 'html.bracket'],
             
             // HTML attributes
-            [/\s+[a-zA-Z-]+(?=\s*=)/, 'attribute.name'],
-            [/=/, 'delimiter'],
-            [/"[^"]*"/, 'attribute.value'],
-            [/'[^']*'/, 'attribute.value'],
-            
-            // CSS in style tags
-            [/<style[^>]*>/, { token: 'tag', next: '@css' }],
-            
-            // JavaScript in script tags
-            [/<script[^>]*>/, { token: 'tag', next: '@javascript' }],
+            [/\s+[a-zA-Z-]+(?=\s*=)/, 'html.attribute.name'],
+            [/=/, 'html.operator'],
+            [/"[^"]*"/, 'html.attribute.value'],
+            [/'[^']*'/, 'html.attribute.value'],
             
             // Comments
-            [/<!--/, { token: 'comment', next: '@htmlComment' }],
+            [/<!--/, { token: 'html.comment', next: '@htmlComment' }],
             
             // Text content
-            [/[^<]+/, 'text']
+            [/[^<]+/, 'html.text']
           ],
 
           ejsCode: [
             // JavaScript keywords in EJS
-            [/\b(if|else|for|while|function|var|let|const|return|true|false|null|undefined)\b/, 'keyword'],
+            [/\b(if|else|for|while|function|var|let|const|return|true|false|null|undefined)\b/, 'ejs.keyword'],
             
             // Operators
-            [/[+\-*/%=<>!&|]+/, 'operator'],
+            [/[+\-*/%=<>!&|]+/, 'ejs.operator'],
             
             // Numbers
-            [/\d+/, 'number'],
+            [/\d+/, 'ejs.number'],
             
             // Strings
-            [/"[^"]*"/, 'string'],
-            [/'[^']*'/, 'string'],
+            [/"[^"]*"/, 'ejs.string'],
+            [/'[^']*'/, 'ejs.string'],
             
             // Variables and functions
-            [/[a-zA-Z_$][\w$]*/, 'variable'],
+            [/[a-zA-Z_$][\w$]*/, 'ejs.variable'],
             
             // Brackets and punctuation
-            [/[{}()\[\]]/, 'delimiter.bracket'],
-            [/[;,.]/, 'delimiter'],
+            [/[{}()\[\]]/, 'ejs.bracket'],
+            [/[;,.]/, 'ejs.punctuation'],
             
             // End EJS tag
-            [/%>/, { token: 'delimiter.ejs', next: '@pop' }]
-          ],
-
-          css: [
-            [/<\/style>/, { token: 'tag', next: '@pop' }],
-            [/[^<]+/, 'css']
-          ],
-
-          javascript: [
-            [/<\/script>/, { token: 'tag', next: '@pop' }],
-            [/[^<]+/, 'javascript']
+            [/%>/, { token: 'ejs.delimiter', next: '@pop' }]
           ],
 
           htmlComment: [
-            [/-->/, { token: 'comment', next: '@pop' }],
-            [/[^-]+/, 'comment'],
-            [/-/, 'comment']
+            [/-->/, { token: 'html.comment', next: '@pop' }],
+            [/[^-]+/, 'html.comment'],
+            [/-/, 'html.comment']
           ]
         }
       });
@@ -104,25 +88,31 @@ const EJSEditor: React.FC<EJSEditorProps> = ({
         base: 'vs-dark',
         inherit: true,
         rules: [
-          { token: 'delimiter.ejs', foreground: '#F59E0B', fontStyle: 'bold' },
-          { token: 'keyword', foreground: '#C792EA' },
-          { token: 'string', foreground: '#C3E88D' },
-          { token: 'number', foreground: '#F78C6C' },
-          { token: 'variable', foreground: '#82AAFF' },
-          { token: 'tag', foreground: '#F07178' },
-          { token: 'attribute.name', foreground: '#FFCB6B' },
-          { token: 'attribute.value', foreground: '#C3E88D' },
-          { token: 'comment', foreground: '#546E7A', fontStyle: 'italic' },
-          { token: 'operator', foreground: '#89DDFF' },
-          { token: 'delimiter.bracket', foreground: '#A6ACCD' },
-          { token: 'text', foreground: '#A6ACCD' }
+          // EJS-specific tokens
+          { token: 'ejs.delimiter', foreground: '#FF6B35', fontStyle: 'bold' },
+          { token: 'ejs.keyword', foreground: '#569CD6' },
+          { token: 'ejs.string', foreground: '#CE9178' },
+          { token: 'ejs.number', foreground: '#B5CEA8' },
+          { token: 'ejs.variable', foreground: '#9CDCFE' },
+          { token: 'ejs.operator', foreground: '#D4D4D4' },
+          { token: 'ejs.bracket', foreground: '#FFD700' },
+          { token: 'ejs.punctuation', foreground: '#D4D4D4' },
+          
+          // HTML tokens - consistent colors
+          { token: 'html.tag', foreground: '#569CD6' },
+          { token: 'html.bracket', foreground: '#808080' },
+          { token: 'html.attribute.name', foreground: '#92C5F8' },
+          { token: 'html.attribute.value', foreground: '#CE9178' },
+          { token: 'html.operator', foreground: '#D4D4D4' },
+          { token: 'html.comment', foreground: '#6A9955', fontStyle: 'italic' },
+          { token: 'html.text', foreground: '#D4D4D4' }
         ],
         colors: {
-          'editor.background': '#1e1e1e',
-          'editor.foreground': '#A6ACCD',
-          'editorLineNumber.foreground': '#464B5D',
-          'editor.selectionBackground': '#3A3F58',
-          'editor.lineHighlightBackground': '#2C2D30'
+          'editor.background': '#1E1E1E',
+          'editor.foreground': '#D4D4D4',
+          'editorLineNumber.foreground': '#858585',
+          'editor.selectionBackground': '#264F78',
+          'editor.lineHighlightBackground': '#2A2D2E'
         }
       });
 
@@ -236,7 +226,7 @@ const EJSEditor: React.FC<EJSEditorProps> = ({
     }
 
     // Set the theme
-    monaco.editor.setTheme('ejs-dark');
+    monaco.editor.setTheme('ejs-clean');
 
     // Configure editor options
     editor.updateOptions({
