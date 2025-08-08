@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="EJS coding icon">
+  <title>EJS coding icon</title>
+
+  <!-- Background -->
+  <rect width="64" height="64" rx="8" fill="#f8fafc"/>
+
+  <!-- Code window -->
+  <rect x="8" y="10" width="48" height="36" rx="4" fill="#1e293b"/>
+
+  <!-- Top bar -->
+  <rect x="8" y="10" width="48" height="6" rx="2" fill="#334155"/>
+  <circle cx="14" cy="13" r="1.5" fill="#ef4444"/>
+  <circle cx="20" cy="13" r="1.5" fill="#facc15"/>
+  <circle cx="26" cy="13" r="1.5" fill="#22c55e"/>
+
+  <!-- EJS syntax < % % > -->
+  <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle"
+        font-family="monospace" font-weight="bold" font-size="16" fill="#facc15">
+    &lt;% %&gt;
+  </text>
+</svg>
