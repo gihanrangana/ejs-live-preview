@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Play, Code, Download, RotateCcw, Menu, X, Copy, Check } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Play, Code, Download, RotateCcw, Menu, X, Copy, Check, RefreshCw } from 'lucide-react';
 import EJSEditor from './components/EJSEditor';
 
 // Simple EJS-like template engine for browser use
@@ -263,18 +263,40 @@ function App() {
     const [activeTab, setActiveTab] = useState<'template' | 'data'>('template');
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [copied, setCopied] = useState(false);
+    const iframeRef = useRef<HTMLIFrameElement>(null);
     // const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
         try {
             const parsedData = JSON.parse(data);
             const rendered = renderEJS(template, parsedData);
-            setPreview(rendered);
+            // Wrap the content in a full HTML document structure
+            setPreview(`<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJS Preview</title>
+</head>
+<body>
+    ${rendered}
+</body>
+</html>`);
         } catch (error: any) {
-            setPreview(`<div style="color: red; padding: 20px; background: #ffe6e6; border-radius: 8px;">
+            setPreview(`<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EJS Preview</title>
+</head>
+<body>
+    <div style="color: red; padding: 20px; background: #ffe6e6; border-radius: 8px;">
         <h3>Data Error:</h3>
         <p>Invalid JSON data: ${error.message}</p>
-      </div>`);
+    </div>
+</body>
+</html>`);
         }
     }, [template, data]);
 
@@ -322,6 +344,14 @@ function App() {
     const resetToDefaults = () => {
         setTemplate(sampleTemplates[0].template);
         setData(JSON.stringify(sampleTemplates[0].data, null, 2));
+    };
+
+    const refreshPreview = () => {
+        if (iframeRef.current && iframeRef.current.contentDocument) {
+            iframeRef.current.contentDocument.open();
+            iframeRef.current.contentDocument.write(preview);
+            iframeRef.current.contentDocument.close();
+        }
     };
 
     return (
@@ -461,14 +491,32 @@ function App() {
                     <div className="flex-1 flex flex-col bg-white">
                         <div className="bg-gray-100 px-6 py-3 border-b border-gray-200 flex items-center justify-between">
                             <h3 className="text-sm font-medium text-gray-700 uppercase tracking-wide">Live Preview</h3>
-                            <Play className="h-4 w-4 text-green-600" />
+                            <div className="flex items-center space-x-3">
+                                <button
+                                    onClick={refreshPreview}
+                                    className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 transition-colors"
+                                    title="Refresh Preview">
+                                    <RefreshCw className="h-4 w-4" />
+                                </button>
+                                <Play className="h-4 w-4 text-green-600" />
+                            </div>
                         </div>
                         <div className="flex-1 overflow-auto">
                             <iframe
+                                ref={iframeRef}
                                 srcDoc={preview}
                                 className="w-full h-full border-none"
                                 title="EJS Preview"
                                 sandbox="allow-scripts"
+                                onLoad={(e) => {
+                                    // Force iframe to refresh its content if needed
+                                    const iframe = e.currentTarget;
+                                    if (iframe.contentDocument) {
+                                        iframe.contentDocument.open();
+                                        iframe.contentDocument.write(preview);
+                                        iframe.contentDocument.close();
+                                    }
+                                }}
                             />
                         </div>
                     </div>
