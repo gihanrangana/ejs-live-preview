@@ -7,7 +7,7 @@ export default defineConfig({
     optimizeDeps: {
         exclude: ['lucide-react']
     },
-    base: '/ejs-live-preview/',
+    base: './', // Change from '/ejs-live-preview/' to './' for better compatibility
     build: {
         outDir: 'dist',
         emptyOutDir: true,

@@ -1,6 +1,29 @@
 import React, { useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
+import { configureMonacoTailwindcss, tailwindcssData } from 'monaco-tailwindcss';
+
+// Configure Monaco worker paths
+self.MonacoEnvironment = {
+    getWorkerUrl: function (_moduleId: string, label: string) {
+        if (label === 'tailwindcss') {
+            return './monaco-tailwindcss/tailwindcss.worker.js';
+        }
+        if (label === 'css' || label === 'scss' || label === 'less') {
+            return './css.worker.js';
+        }
+        if (label === 'html' || label === 'handlebars' || label === 'razor') {
+            return './html.worker.js';
+        }
+        if (label === 'json') {
+            return './json.worker.js';
+        }
+        if (label === 'javascript' || label === 'typescript') {
+            return './ts.worker.js';
+        }
+        return './editor.worker.js';
+    }
+};
 
 interface EJSEditorProps {
     value: string;
@@ -17,9 +40,6 @@ const EJSEditor: React.FC<EJSEditorProps> = ({ value, onChange, language = 'html
         monaco: typeof import('monaco-editor')
     ) => {
         editorRef.current = editor;
-
-        // Set the theme
-        monaco.editor.setTheme('vs-dark');
 
         // Configure editor options
         editor.updateOptions({
@@ -57,6 +77,26 @@ const EJSEditor: React.FC<EJSEditorProps> = ({ value, onChange, language = 'html
         });
     };
 
+    const handleEditorWillMount = (monaco: any) => {
+        // Set the theme
+        monaco.editor.setTheme('vs-dark');
+
+        try {
+            // Safely configure Tailwind CSS
+            monaco.languages.css.cssDefaults.setOptions({
+                data: {
+                    dataProviders: {
+                        tailwindcssData
+                    }
+                }
+            });
+
+            configureMonacoTailwindcss(monaco);
+        } catch (error) {
+            console.error('Error configuring Tailwind CSS for Monaco:', error);
+        }
+    };
+
     const handleEditorChange = (value: string | undefined) => {
         if (value !== undefined) {
             onChange(value);
@@ -71,6 +111,7 @@ const EJSEditor: React.FC<EJSEditorProps> = ({ value, onChange, language = 'html
                 value={value}
                 onChange={handleEditorChange}
                 onMount={handleEditorDidMount}
+                beforeMount={handleEditorWillMount}
                 theme="vs-dark"
                 options={{
                     fontSize: 14,

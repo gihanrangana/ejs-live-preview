@@ -1,69 +1,142 @@
 import { useState, useEffect, useRef } from 'react';
 import { Play, Code, Download, RotateCcw, Menu, X, Copy, Check, RefreshCw } from 'lucide-react';
+// Import EJS from the global scope when using the CDN version
 import EJSEditor from './components/EJSEditor';
 
 // Simple EJS-like template engine for browser use
+// const renderEJS = (template: string, data: any = {}): string => {
+//     try {
+//         // Handle basic EJS syntax: <% %>, <%= %>, <%- %>
+//         let result = template;
+
+//         // Replace <%- %> (unescaped output)
+//         result = result.replace(/<%-([\s\S]*?)%>/g, (_match, code) => {
+//             try {
+//                 const func = new Function(...Object.keys(data), `return ${code.trim()}`);
+//                 return func(...Object.values(data));
+//             } catch (e: any) {
+//                 return `[Error: ${e.message}]`;
+//             }
+//         });
+
+//         // Replace <%= %> (escaped output)
+//         result = result.replace(/<%=([\s\S]*?)%>/g, (_match, code) => {
+//             try {
+//                 const func = new Function(...Object.keys(data), `return ${code.trim()}`);
+//                 const output = func(...Object.values(data));
+//                 return String(output).replace(/[&<>"']/g, (char) => {
+//                     const entities: { [key: string]: string } = {
+//                         '&': '&amp;',
+//                         '<': '&lt;',
+//                         '>': '&gt;',
+//                         '"': '&quot;',
+//                         "'": '&#39;'
+//                     };
+//                     return entities[char] || char;
+//                 });
+//             } catch (e: any) {
+//                 return `[Error: ${e.message}]`;
+//             }
+//         });
+
+//         // Pre-process forEach loops first
+//         const forEachPattern =
+//             /<%\s*([\s\S]*?).forEach\(function\s*\(\s*(\w+)(?:,\s*\w+)?\s*\)\s*\{([\s\S]*?)\}\s*\);\s*%>/g;
+//         result = result.replace(forEachPattern, (_match, collection: string, itemVar: string, loopContent: string) => {
+//             try {
+//                 const collectionFunc = new Function(...Object.keys(data), `return ${collection.trim()}`);
+//                 const items = collectionFunc(...Object.values(data));
+
+//                 if (!Array.isArray(items)) {
+//                     return `[Error: ${collection.trim()} is not an array]`;
+//                 }
+
+//                 let output = '';
+//                 for (const item of items) {
+//                     // Create a new context with the item variable
+//                     const loopData = { ...data, [itemVar]: item };
+
+//                     // Process the loop content with the new context
+//                     let processedContent = loopContent;
+
+//                     // Process <%= %> expressions within the loop
+//                     processedContent = processedContent.replace(/<%=([\s\S]*?)%>/g, (_m: string, code: string) => {
+//                         try {
+//                             const loopFunc = new Function(...Object.keys(loopData), `return ${code.trim()}`);
+//                             const loopOutput = loopFunc(...Object.values(loopData));
+//                             return String(loopOutput).replace(/[&<>"']/g, (char) => {
+//                                 const entities: { [key: string]: string } = {
+//                                     '&': '&amp;',
+//                                     '<': '&lt;',
+//                                     '>': '&gt;',
+//                                     '"': '&quot;',
+//                                     "'": '&#39;'
+//                                 };
+//                                 return entities[char] || char;
+//                             });
+//                         } catch (e: any) {
+//                             return `[Error: ${e.message}]`;
+//                         }
+//                     });
+
+//                     // Process <%- %> expressions within the loop
+//                     processedContent = processedContent.replace(/<%-([\s\S]*?)%>/g, (_m: string, code: string) => {
+//                         try {
+//                             const loopFunc = new Function(...Object.keys(loopData), `return ${code.trim()}`);
+//                             return loopFunc(...Object.values(loopData));
+//                         } catch (e: any) {
+//                             return `[Error: ${e.message}]`;
+//                         }
+//                     });
+
+//                     output += processedContent;
+//                 }
+
+//                 return output;
+//             } catch (e: any) {
+//                 return `[Error: ${e.message}]`;
+//             }
+//         });
+
+//         // Handle <% %> (other code execution)
+//         result = result.replace(/<%([\s\S]*?)%>/g, (_match, code) => {
+//             try {
+//                 // Simple variable declarations and other constructs
+//                 const trimmedCode = code.trim();
+
+//                 if (trimmedCode.startsWith('if')) {
+//                     // Handle simple if statements
+//                     const condition = trimmedCode.match(/if\s*\((.*?)\)/)?.[1];
+//                     if (condition) {
+//                         const func = new Function(...Object.keys(data), `return ${condition}`);
+//                         return func(...Object.values(data)) ? '' : '<!-- if condition false -->';
+//                     }
+//                 }
+
+//                 // Other for or while loops that might not be processed by the forEach handler
+//                 if (trimmedCode.startsWith('for') || trimmedCode.startsWith('while')) {
+//                     return `<!-- loop not supported: ${trimmedCode.substring(0, 20)}... -->`;
+//                 }
+
+//                 return '';
+//             } catch (e: any) {
+//                 return `[Error: ${e.message}]`;
+//             }
+//         });
+
+//         return result;
+//     } catch (error: any) {
+//         return `<div style="color: red; padding: 20px; background: #ffe6e6; border-radius: 8px;">
+//       <h3>Template Error:</h3>
+//       <p>${error.message}</p>
+//     </div>`;
+//     }
+// };
+
 const renderEJS = (template: string, data: any = {}): string => {
     try {
-        // Handle basic EJS syntax: <% %>, <%= %>, <%- %>
-        let result = template;
-
-        // Replace <%- %> (unescaped output)
-        result = result.replace(/<%-([\s\S]*?)%>/g, (_match, code) => {
-            try {
-                const func = new Function(...Object.keys(data), `return ${code.trim()}`);
-                return func(...Object.values(data));
-            } catch (e: any) {
-                return `[Error: ${e.message}]`;
-            }
-        });
-
-        // Replace <%= %> (escaped output)
-        result = result.replace(/<%=([\s\S]*?)%>/g, (_match, code) => {
-            try {
-                const func = new Function(...Object.keys(data), `return ${code.trim()}`);
-                const output = func(...Object.values(data));
-                return String(output).replace(/[&<>"']/g, (char) => {
-                    const entities: { [key: string]: string } = {
-                        '&': '&amp;',
-                        '<': '&lt;',
-                        '>': '&gt;',
-                        '"': '&quot;',
-                        "'": '&#39;'
-                    };
-                    return entities[char] || char;
-                });
-            } catch (e: any) {
-                return `[Error: ${e.message}]`;
-            }
-        });
-
-        // Handle <% %> (code execution)
-        result = result.replace(/<%([\s\S]*?)%>/g, (_match, code) => {
-            try {
-                // Simple variable declarations and loops
-                const trimmedCode = code.trim();
-
-                if (trimmedCode.startsWith('if')) {
-                    // Handle simple if statements
-                    const condition = trimmedCode.match(/if\s*\((.*?)\)/)?.[1];
-                    if (condition) {
-                        const func = new Function(...Object.keys(data), `return ${condition}`);
-                        return func(...Object.values(data)) ? '' : '<!-- if condition false -->';
-                    }
-                }
-
-                if (trimmedCode.startsWith('for') || trimmedCode.startsWith('while')) {
-                    return '<!-- loop detected -->';
-                }
-
-                return '';
-            } catch (e: any) {
-                return `[Error: ${e.message}]`;
-            }
-        });
-
-        return result;
+        // Use the globally available ejs from CDN with proper typing
+        return window.ejs.render(template, data);
     } catch (error: any) {
         return `<div style="color: red; padding: 20px; background: #ffe6e6; border-radius: 8px;">
       <h3>Template Error:</h3>
@@ -252,6 +325,129 @@ const sampleTemplates = [
                     description: 'Advanced fitness tracking and smart notifications on your wrist.'
                 }
             ]
+        }
+    },
+    {
+        name: 'Invoice Table',
+        template: `<div class="invoice">
+  <div class="invoice-header">
+    <h1>Invoice #<%= invoice.id %></h1>
+    <p>Date: <%= invoice.date %></p>
+  </div>
+
+  <div class="customer-info">
+    <h2>Customer Details</h2>
+    <p><strong>Name:</strong> <%= invoice.customer.name %></p>
+    <p><strong>Email:</strong> <%= invoice.customer.email %></p>
+    <p><strong>Address:</strong> <%= invoice.customer.address %></p>
+  </div>
+
+  <div class="invoice-items">
+    <h2>Items</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Quantity</th>
+          <th>Unit Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% invoice.items.forEach(function(item) { %>
+        <tr>
+          <td><%= item.description %></td>
+          <td><%= item.quantity %></td>
+          <td>$<%= item.unitPrice.toFixed(2) %></td>
+          <td>$<%= (item.quantity * item.unitPrice).toFixed(2) %></td>
+        </tr>
+        <% }); %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3" class="text-right"><strong>Total:</strong></td>
+          <td><strong>$<%= invoice.total.toFixed(2) %></strong></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<style>
+.invoice {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 40px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+.invoice-header {
+  border-bottom: 2px solid #eee;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+h1 {
+  color: #2c3e50;
+  margin: 0 0 10px 0;
+}
+h2 {
+  color: #3498db;
+  font-size: 18px;
+  margin-top: 30px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+}
+tfoot td {
+  border-top: 2px solid #ddd;
+  font-weight: bold;
+}
+.text-right {
+  text-align: right;
+}
+</style>`,
+        data: {
+            invoice: {
+                id: 'INV-2023-001',
+                date: '2023-04-15',
+                customer: {
+                    name: 'Jane Smith',
+                    email: 'jane.smith@example.com',
+                    address: '123 Business Ave, Tech City, TC 54321'
+                },
+                items: [
+                    {
+                        description: 'Web Development Services',
+                        quantity: 40,
+                        unitPrice: 75.0
+                    },
+                    {
+                        description: 'UI/UX Design',
+                        quantity: 20,
+                        unitPrice: 95.0
+                    },
+                    {
+                        description: 'SEO Optimization',
+                        quantity: 10,
+                        unitPrice: 120.0
+                    }
+                ],
+                total: 5350.0
+            }
         }
     }
 ];
