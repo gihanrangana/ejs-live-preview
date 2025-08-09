@@ -328,7 +328,7 @@ function App() {
         <div className="min-h-screen bg-gray-900 text-white font-sans">
             {/* Header */}
             <header className="bg-gray-800 border-b border-gray-700 px-6 py-4">
-                <div className="max-w-7xl mx-auto flex items-center justify-between">
+                <div className="w-full mx-auto flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                         <Code className="h-8 w-8 text-blue-400" />
                         <h1 className="text-xl font-bold">EJS Live Preview</h1>
@@ -464,7 +464,12 @@ function App() {
                             <Play className="h-4 w-4 text-green-600" />
                         </div>
                         <div className="flex-1 overflow-auto">
-                            <div dangerouslySetInnerHTML={{ __html: preview }} className="h-full text-black" />
+                            <iframe
+                                srcDoc={preview}
+                                className="w-full h-full border-none"
+                                title="EJS Preview"
+                                sandbox="allow-scripts"
+                            />
                         </div>
                     </div>
                 </div>
